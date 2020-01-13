@@ -1,0 +1,27 @@
+[GENERAL]
+# LOG_FILE = ./cassandra_gateway.log
+LOG_VERBOSITY = INFO
+
+[SERVER]
+HTTP_PORT = 80
+FORK = true
+
+[CASSANDRA]
+# CONTACT_POINTS = 127.0.0.1,127.0.0.2,127.0.0.3
+# PORT = 9042
+
+# LOCAL_DATACENTER =
+# KEYSPACE =
+
+# USERNAME = username
+# PASSWORD = password
+
+# USE_SSL = false
+# SSL_CERT_FILE =
+# SSL_KEY_FILE =
+# SSL_PASSWORD =
+
+[API]
+ALLOW_CORS = true
+# CORS_DOMAIN = domain.com
+
