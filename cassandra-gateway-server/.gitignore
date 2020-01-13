@@ -1,0 +1,7 @@
+*.out
+settings.ini
+tags.*
+*.pyc
+*.pyo
+venv
+
