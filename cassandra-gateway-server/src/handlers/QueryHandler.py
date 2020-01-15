@@ -111,11 +111,10 @@ class QueryHandler(BaseHandler):
 
             try:
                 rows = cassandra_client.execute(request)
+                results = self._parse_results(rows)
             except Unauthorized:
                 self.set_status(403)
                 return
-
-            results = self._parse_results(rows)
 
         self.set_header('Content-Type', 'application/json')
         self.write(json_encode(results))
