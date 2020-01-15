@@ -4,9 +4,14 @@ from tornado import testing
 
 
 class HealthTestCase(testing.AsyncTestCase):
+
     @testing.gen_test
     def test_http_fetch(self):
+        """
+        Test if the /health endpoint return 'ok'
+        """
         client = testing.AsyncHTTPClient()
+
         response = yield client.fetch("http://localhost/health")
-        # Test contents of response
-        self.assertIn('ok', response.body)
+
+        self.assertEqual(200, response.status_code, msg='/health should return 200 status code')
