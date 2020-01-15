@@ -28,7 +28,7 @@ def start_http(app: web.Application, http_port: int = port, use_fork: bool = for
 
     :param app: the app to execute in server instances
     :param http_port: port to bind
-    :param use_fork: fork or not to use more than one CPU
+    :param use_fork: fork or not to use more than one CPU (process)
     """
     http_socket = netutil.bind_sockets(http_port)  # HTTP socket
     if use_fork:
@@ -62,6 +62,9 @@ def start_http(app: web.Application, http_port: int = port, use_fork: bool = for
 
 
 def stop_all():
+    """
+    Take care of stopping all server process properly
+    """
     for server, loop in servers:
         server.close_all_connections()
         loop.stop()
