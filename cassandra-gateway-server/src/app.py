@@ -64,4 +64,3 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, stop)
     signal.signal(signal.SIGTERM, stop)
     main()
-

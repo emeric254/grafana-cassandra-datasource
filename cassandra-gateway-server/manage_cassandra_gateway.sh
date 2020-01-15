@@ -76,13 +76,15 @@ if [ $# -ge 1 ]
 then
     case $1 in
         'logs')
-            logs $@
+            shift
+            logs "$@"
         ;;
         'build')
             build
         ;;
         'start')
-            start $@
+            shift
+            start "$@"
         ;;
         'restart')
             restart
