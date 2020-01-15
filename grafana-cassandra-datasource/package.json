@@ -41,7 +41,7 @@
     "yarn": "^1.21.1"
   },
   "dependencies": {
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.15"
   },
   "homepage": "https://github.com/emeric254/grafana-cassandra-datasource#readme"
 }
