@@ -56,7 +56,7 @@ function kill {
 }
 
 function help {
-    echo "usage: " $0 "<action to perform> [optional additional parameters]"
+    echo "usage: $0 <action to perform> [optional additional parameters]"
     cat <<EOF
 Parameters:
     'help': show this help
