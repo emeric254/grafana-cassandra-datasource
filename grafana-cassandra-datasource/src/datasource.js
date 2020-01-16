@@ -78,28 +78,9 @@ export class GenericDatasource {
   }
 
   metricFindQuery(query) {
-    // used by query editor to get metric suggestions.
-    // TODO
-    var interpolated = {
-        target: this.templateSrv.replace(query, null, 'regex')
-    };
-
-    return this.doRequest({
-      url: this.url + '/search',
-      data: interpolated,
-      method: 'POST',
-    }).then(this.mapToTextValue);
-  }
-
-  mapToTextValue(result) {
-    // TODO
-    return _.map(result.data, (d, i) => {
-      if (d && d.text && d.value) {
-        return { text: d.text, value: d.value };
-      } else if (_.isObject(d)) {
-        return { text: d, value: i};
-      }
-      return { text: d, value: d };
+    // No metric suggestion atm. in this datasource
+    return new Promise(function(resolve, reject) {
+        resolve([]);
     });
   }
 
