@@ -80,6 +80,61 @@ class QueryHandler(BaseHandler):
 
         return results
 
+    def _aggregate_datapoints(self, entry_results):
+        start_interval_timestamp = 0
+        end_interval_timestamp = 0
+        interval_ms = self.args.get('intervalMs')
+
+        buffer_sum = 0
+        buffer_number = 0
+
+        new_datapoints = []
+
+        for (value, timestamp) in entry_results:
+
+            if not start_interval_timestamp:
+                # start with first value timestamp
+                start_interval_timestamp = timestamp
+                end_interval_timestamp = start_interval_timestamp + interval_ms
+
+            # verify we are not in a new interval
+            if timestamp >= end_interval_timestamp:
+                # store last interval average
+                if buffer_number:
+                    new_datapoints.append([
+                        buffer_sum / buffer_number,
+                        timestamp
+                    ])
+
+                # reset buffers
+                buffer_sum = 0
+                buffer_number = 0
+
+                # increment interval start timestamp as much as needed
+                while timestamp >= end_interval_timestamp:
+                    start_interval_timestamp += interval_ms
+                    end_interval_timestamp = start_interval_timestamp + interval_ms
+
+            # aggregate values in the same interval
+            buffer_sum += value
+            buffer_number += 1
+
+        return new_datapoints
+
+    def _aggregate_results(self, all_results):
+        new_results = []
+
+        for result in all_results:
+            target = result['target']
+            datapoints = result['datapoints']
+
+            new_results.append({
+                    'target': target,
+                    'datapoints': self._aggregate_datapoints(datapoints)
+            })
+
+        return new_results
+
     def post(self):
 
         targets = self.args.get('targets')
@@ -114,11 +169,13 @@ class QueryHandler(BaseHandler):
 
             try:
                 rows = cassandra_client.execute(request)
-                results = self._parse_results(rows)
+                tmp_results = self._parse_results(rows)
             except Unauthorized as e:
                 logger.warning(f'The query got refused because of authorization reasons: {e}')
                 self.set_status(403)
                 return
+
+            results.extend(self._aggregate_results(tmp_results))
 
         self.set_header('Content-Type', 'application/json')
         self.write(json_encode(results))
