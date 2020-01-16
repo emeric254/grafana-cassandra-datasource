@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from cassandra import DriverException
+from cassandra import DriverException, cluster
 from tools.CassandraClient import Client
 from handlers.BaseHandler import BaseHandler
 
@@ -17,7 +17,7 @@ class HealthHandler(BaseHandler):
     async def get(self):
         try:
             Client.get_client()
-        except DriverException:
+        except OSError or DriverException or cluster.NoHostAvailable:
             self.set_status(503)
             return
 
