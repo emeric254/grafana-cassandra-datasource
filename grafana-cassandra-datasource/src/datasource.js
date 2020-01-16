@@ -33,8 +33,6 @@ export class GenericDatasource {
       query.adhocFilters = [];
     }
 
-    console.log(query);
-
     return this.doRequest({
       url: this.url + '/query',
       data: query,
@@ -70,8 +68,6 @@ export class GenericDatasource {
       rangeRaw: options.rangeRaw
     };
 
-    console.log(annotationQuery);
-
     return this.doRequest({
       url: this.url + '/annotations',
       method: 'POST',
@@ -87,8 +83,6 @@ export class GenericDatasource {
     var interpolated = {
         target: this.templateSrv.replace(query, null, 'regex')
     };
-
-    console.log(interpolated);
 
     return this.doRequest({
       url: this.url + '/search',
