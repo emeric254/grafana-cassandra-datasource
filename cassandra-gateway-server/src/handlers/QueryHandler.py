@@ -96,7 +96,8 @@ class QueryHandler(BaseHandler):
 
         try:
             cassandra_client = Client.get_client()
-        except DriverException:
+        except DriverException as e:
+            logger.error(f'The query got refused because of a cassandra driver error: {e}')
             self.set_status(503)
             return
 
@@ -109,10 +110,13 @@ class QueryHandler(BaseHandler):
             if not request:
                 continue
 
+            logger.debug(f'Executing: {request}')
+
             try:
                 rows = cassandra_client.execute(request)
                 results = self._parse_results(rows)
-            except Unauthorized:
+            except Unauthorized as e:
+                logger.warning(f'The query got refused because of authorization reasons: {e}')
                 self.set_status(403)
                 return
 
