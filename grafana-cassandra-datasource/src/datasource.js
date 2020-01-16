@@ -112,9 +112,9 @@ export class GenericDatasource {
   }
 
   buildQueryParameters(options) {
-    // remove placeholder targets
     options.targets = _.filter(options.targets, target => {
-      return target.target !== 'write your query here';
+      // remove placeholder targets
+      return target.target !== 'write your cassandra query here';
     });
 
     var targets = _.map(options.targets, target => {
