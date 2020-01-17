@@ -85,7 +85,8 @@ class Client:
 
         :return: A cassandra client connection, ready to perform query
         """
-        if not cls.cassandra_connection:
+        if not cls.cassandra_connection or cls.cassandra_connection.is_shutdown:
+            cls.close_connection()
             cls._open_connection()
         return cls.cassandra_connection.connect(cassandra_keyspace)
 
@@ -94,7 +95,7 @@ class Client:
         """
         Close all remaining connection properly if any.
         """
-        if cls.cassandra_connection:
+        if not cls.cassandra_connection:
             return
         cls.cassandra_connection.shutdown()
         cls.cassandra_connection = None
