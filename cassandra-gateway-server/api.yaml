@@ -1,0 +1,122 @@
+swagger: "2.0"
+
+info:
+  title: Cassandra gateway API
+  version: 1.0.0
+  description: API to perform cassandra query from a HTTP endpoint.
+
+basePath: /
+
+consumes:
+  - application/json
+
+produces:
+  - application/json
+
+schemes:
+  - https
+
+paths:
+
+  /version:
+    get:
+      summary: Returns the server version.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: The server version
+          examples:
+            '3.1.5':
+              'version': "3.1.5"
+            'dev':
+              'version': "DEV"
+
+  /health:
+    get:
+      summary: Returns the server version.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: The server is running correctly
+          examples:
+            answer:
+              "{'status' : 'ok'}"
+        503:
+          description: The server is not healthy, the cassandra connection have troubles
+
+  /query:
+    post:
+      summary: Perform a cassandra query
+      description: |
+        Connecting to a websocket channel.
+        This channel will provide data consumed from the Redis channel having the same name.
+      parameters:
+        - in: body
+          name: body
+          description: "Grafana query containing the Cassandra query"
+          required: true
+          schema:
+            $ref: "#/definitions/GrafanaQuery"
+      responses:
+        200:
+          description: Grafana targets with their datapoints
+          schema:
+            $ref: "#/definitions/GrafanaAnswer"
+        503:
+          description: The server is not healthy, the cassandra connection have troubles
+
+definitions:
+
+  GrafanaAnswer:
+    type: array
+    items:
+      type: object
+      properties:
+        datapoints:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+              format: float
+            description: "array composed of a timestamp and the associated value"
+            example:
+              [171875, 1579034870493.109]
+        target:
+          type: string
+          description: "name of the variable"
+
+  GrafanaQuery:
+    type: "object"
+    properties:
+      intervalMs:
+        type: integer
+        format: int32
+        description: "interval in milliseconds wanted between each data point"
+      range:
+        type: object
+        properties:
+          from:
+            type: string
+            format: 'date-time'
+            description: "beginning of the time range"
+          to:
+            type: string
+            format: 'date-time'
+            description: "end of the time range"
+      targets:
+        type: array
+        items:
+          type: object
+          properties:
+            target:
+              type: string
+              description: "a Cassandra query"
+            type:
+              type: string
+              default: "timeserie"
+              enum:
+                - "timeserie"
+                - "table"
