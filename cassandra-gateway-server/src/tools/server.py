@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import gc
 import logging
 import configparser
 from tornado import httpserver, ioloop, netutil, process, web
@@ -33,13 +32,9 @@ def start_http(app: web.Application, http_port: int = port, use_fork: bool = for
     http_socket = netutil.bind_sockets(http_port)  # HTTP socket
     if use_fork:
         try:  # try to create threads
-            if gc.isenabled():
-                # collection before a POSIX fork() call may free pages for future allocation
-                gc.freeze()
             process.fork_processes(0)  # fork
         except KeyboardInterrupt:  # except KeyboardInterrupt to "properly" exit
             ioloop.IOLoop.current().stop()
-            gc.unfreeze()
             exit(0)
         except AttributeError:  # OS without fork() support ...
             logger.warning('Can not fork, continuing with only one thread ...')
@@ -67,4 +62,5 @@ def stop_all():
     """
     for server, loop in servers:
         server.close_all_connections()
+        server.stop()
         loop.stop()
