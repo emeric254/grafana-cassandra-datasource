@@ -45,7 +45,7 @@ class QueryHandler(BaseHandler):
         return True
 
     @staticmethod
-    def _parse_results(rows):
+    def _parse_results_as_timeserie(rows):
         results = []
 
         entries = {}
@@ -79,6 +79,33 @@ class QueryHandler(BaseHandler):
             results.append(entry)
 
         return results
+
+    @staticmethod
+    def _parse_results_as_table(rows):
+        result = {
+            'columns': [],
+            'rows': [],
+            'type': 'table'
+        }
+
+        for row in rows:
+            if not result['columns']:
+                for column in list(row._fields):
+                    result['columns'].append(
+                        {
+                            'text': column,
+                            'type': 'string'
+                        }
+                    )
+            value_list = []
+            for column in list(row._fields):
+                value = getattr(row, column)
+                if column == 'timestamp':
+                    value = int(value) / 1000
+                value_list.append(value)
+            result['rows'].append(value_list)
+
+        return [result]
 
     def _aggregate_datapoints(self, entry_results):
         start_interval_timestamp = 0
@@ -116,8 +143,12 @@ class QueryHandler(BaseHandler):
                     end_interval_timestamp = start_interval_timestamp + interval_ms
 
             # aggregate values in the same interval
-            buffer_sum += value
-            buffer_number += 1
+            try:
+                buffer_sum += value
+                buffer_number += 1
+            except ValueError or TypeError:
+                # you can't aggregate str
+                return entry_results
 
         return new_datapoints
 
@@ -158,6 +189,7 @@ class QueryHandler(BaseHandler):
 
         for target in targets:
             request = target.get('target')
+            target_type = target.get('type') or 'timeserie'
 
             request = request.replace('$startTime', self.start_time)
             request = request.replace('$endTime', self.end_time)
@@ -169,13 +201,19 @@ class QueryHandler(BaseHandler):
 
             try:
                 rows = cassandra_client.execute(request)
-                tmp_results = self._parse_results(rows)
+                if target_type == 'timeserie':
+                    tmp_results = self._parse_results_as_timeserie(rows)
+                else:
+                    tmp_results = self._parse_results_as_table(rows)
             except Unauthorized as e:
                 logger.warning(f'The query got refused because of authorization reasons: {e}')
                 self.set_status(403)
                 return
 
-            results.extend(self._aggregate_results(tmp_results))
+            if target_type == 'timeserie':
+                results.extend(self._aggregate_results(tmp_results))
+            else:
+                results.extend(tmp_results)
 
         self.set_header('Content-Type', 'application/json')
         self.write(json_encode(results))
