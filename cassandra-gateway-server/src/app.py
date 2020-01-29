@@ -9,6 +9,7 @@ from tornado import web
 from handlers.QueryHandler import QueryHandler
 from handlers.HealthHandler import HealthHandler
 from handlers.VersionHandler import VersionHandler
+from handlers.AnnotationsHandler import AnnotationsHandler
 from tools import server
 from tools.CassandraClient import Client
 
@@ -47,6 +48,7 @@ def main():
             (r'/version', VersionHandler),
             (r'/health', HealthHandler),
             (r'/query', QueryHandler),
+            (r'/annotations', AnnotationsHandler),
         ], **app_settings)
 
     server.start_http(app=application)
