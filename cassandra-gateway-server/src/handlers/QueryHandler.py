@@ -107,7 +107,7 @@ class QueryHandler(BaseHandler):
 
         return [result]
 
-    def _aggregate_datapoints(self, entry_results):
+    def _aggregate_datapoint_average(self, entry_results):
         start_interval_timestamp = 0
         end_interval_timestamp = 0
         interval_ms = self.args.get('intervalMs')
@@ -152,16 +152,44 @@ class QueryHandler(BaseHandler):
 
         return new_datapoints
 
-    def _aggregate_results(self, all_results):
+
+    @staticmethod
+    def _aggregate_datapoint_changes(entry_results):
+
+        last_value = None
+
+        new_datapoints = []
+
+        for (value, timestamp) in entry_results:
+
+            if value == last_value:
+                continue
+
+            new_datapoints.append([
+                value,
+                timestamp
+            ])
+
+            last_value = value
+
+        return new_datapoints
+
+    def _aggregate_results(self, all_results, aggregation):
         new_results = []
 
         for result in all_results:
             target = result['target']
             datapoints = result['datapoints']
 
+            elif aggregation == 'on changes':
+                datapoints = self._aggregate_datapoint_changes(datapoints)
+            else:
+                # default behavior is average
+                datapoints = self._aggregate_datapoint_average(datapoints)
+
             new_results.append({
                     'target': target,
-                    'datapoints': self._aggregate_datapoints(datapoints)
+                    'datapoints': datapoints
             })
 
         return new_results
@@ -190,6 +218,7 @@ class QueryHandler(BaseHandler):
         for target in targets:
             request = target.get('target')
             target_type = target.get('type') or 'timeserie'
+            aggregation = target.get('aggregation')
 
             request = request.replace('$startTime', self.start_time)
             request = request.replace('$endTime', self.end_time)

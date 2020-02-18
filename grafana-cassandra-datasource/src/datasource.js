@@ -95,7 +95,7 @@ export class GenericDatasource {
   buildQueryParameters(options) {
     options.targets = _.filter(options.targets, target => {
       // remove placeholder targets
-      return target.target !== 'write your cassandra query here';
+      return target.target !== '' && target.target !== 'write your cassandra query here';
     });
 
     var targets = _.map(options.targets, target => {
@@ -103,7 +103,8 @@ export class GenericDatasource {
         target: this.templateSrv.replace(target.target, options.scopedVars, 'regex'),
         refId: target.refId,
         hide: target.hide,
-        type: target.type || 'timeserie'
+        type: target.type || 'timeserie',
+        aggregation: target.aggregation || 'average'
       };
     });
 

@@ -9,6 +9,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.scope = $scope;
     this.target.target = this.target.target || 'write your cassandra query here';
     this.target.type = this.target.type || 'timeserie';
+    this.target.aggregation = this.target.aggregation || 'average';
   }
 
   getOptions(query) {
