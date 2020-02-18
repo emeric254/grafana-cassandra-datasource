@@ -14,7 +14,7 @@
       <p> Aggregation type: </p>
     </div>
     <div class="gf-form gf-form--grow">
-      <select class="gf-form-input" ng-model="ctrl.target.aggregation" ng-options="f as f for f in ['average', 'minimum', 'maximum', 'on changes']"></select>
+      <select class="gf-form-input" ng-model="ctrl.target.aggregation" ng-options="f as f for f in ['none', 'sum', 'average', 'minimum', 'maximum', 'on changes', 'and', 'or', 'count']"></select>
     </div>
   </div>
 </query-editor-row>

@@ -107,13 +107,29 @@ class QueryHandler(BaseHandler):
 
         return [result]
 
-    def _aggregate_datapoint_average(self, entry_results):
+    @staticmethod
+    def _compute_aggregation(points: list, method):
+        if method == 'sum':
+            return sum(points)
+        elif method == 'minimum':
+            return min(points)
+        elif method == 'maximum':
+            return max(points)
+        elif method == 'and':
+            return all(points)
+        elif method == 'or':
+            return any(points)
+        elif method == 'count':
+            return len(points)
+        # default is average
+        return sum(points) / len(points)
+
+    def _aggregate_datapoint(self, entry_results, method):
         start_interval_timestamp = 0
         end_interval_timestamp = 0
         interval_ms = self.args.get('intervalMs')
 
-        buffer_sum = 0
-        buffer_number = 0
+        buffer = []
 
         new_datapoints = []
 
@@ -127,15 +143,14 @@ class QueryHandler(BaseHandler):
             # verify we are not in a new interval
             if timestamp >= end_interval_timestamp:
                 # store last interval average
-                if buffer_number:
+                if buffer:
                     new_datapoints.append([
-                        buffer_sum / buffer_number,
+                        self._compute_aggregation(buffer, method),
                         timestamp
                     ])
 
                 # reset buffers
-                buffer_sum = 0
-                buffer_number = 0
+                buffer = []
 
                 # increment interval start timestamp as much as needed
                 while timestamp >= end_interval_timestamp:
@@ -144,14 +159,12 @@ class QueryHandler(BaseHandler):
 
             # aggregate values in the same interval
             try:
-                buffer_sum += value
-                buffer_number += 1
+                buffer.append(value)
             except ValueError or TypeError:
                 # you can't aggregate str
                 return entry_results
 
         return new_datapoints
-
 
     @staticmethod
     def _aggregate_datapoint_changes(entry_results):
@@ -181,11 +194,13 @@ class QueryHandler(BaseHandler):
             target = result['target']
             datapoints = result['datapoints']
 
+            logger.critical(aggregation)
             if aggregation == 'on changes':
+                # aggregate by duplicate value
                 datapoints = self._aggregate_datapoint_changes(datapoints)
-            else:
-                # default behavior is average
-                datapoints = self._aggregate_datapoint_average(datapoints)
+            elif aggregation != 'none':
+                # aggregate by time intervals
+                datapoints = self._aggregate_datapoint(datapoints, aggregation)
 
             new_results.append({
                     'target': target,
