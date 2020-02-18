@@ -181,7 +181,7 @@ class QueryHandler(BaseHandler):
             target = result['target']
             datapoints = result['datapoints']
 
-            elif aggregation == 'on changes':
+            if aggregation == 'on changes':
                 datapoints = self._aggregate_datapoint_changes(datapoints)
             else:
                 # default behavior is average
