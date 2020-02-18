@@ -232,17 +232,14 @@ class QueryHandler(BaseHandler):
                 rows = cassandra_client.execute(request)
                 if target_type == 'timeserie':
                     tmp_results = self._parse_results_as_timeserie(rows)
+                    results.extend(self._aggregate_results(tmp_results, aggregation))
                 else:
                     tmp_results = self._parse_results_as_table(rows)
+                    results.extend(tmp_results)
             except Unauthorized as e:
                 logger.warning(f'The query got refused because of authorization reasons: {e}')
                 self.set_status(403)
                 return
-
-            if target_type == 'timeserie':
-                results.extend(self._aggregate_results(tmp_results))
-            else:
-                results.extend(tmp_results)
 
         self.set_header('Content-Type', 'application/json')
         self.write(json_encode(results))
