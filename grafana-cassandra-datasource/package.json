@@ -19,29 +19,26 @@
   },
   "engineStrict": true,
   "devDependencies": {
-    "babel": "^6.23.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "chai": "~4.2.0",
-    "grunt": "^1.1.0",
-    "grunt-babel": "~7.0.0",
-    "grunt-cli": "^1.3.2",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "chai": "~4.3.4",
+    "grunt": "^1.4.1",
+    "grunt-babel": "~8.0.0",
+    "grunt-cli": "^1.4.3",
     "grunt-contrib-clean": "^2.0.0",
     "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-uglify": "^4.0.1",
     "grunt-contrib-watch": "^1.1.0",
-    "grunt-execute": "~0.2.2",
-    "grunt-mocha-test": "^0.13.2",
-    "grunt-systemjs-builder": "^1.0.0",
-    "jsdom": "~16.2.1",
+    "grunt-mocha-test": "^0.13.3",
+    "jsdom": "~17.0.0",
     "load-grunt-tasks": "^5.1.0",
-    "mocha": "~7.1.1",
+    "mocha": "~9.1.0",
     "prunk": "^1.3.1",
     "q": "^1.5.1",
-    "yarn": "^1.22.4"
+    "yarn": "^1.22.11"
   },
   "dependencies": {
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.21"
   },
   "homepage": "https://github.com/emeric254/grafana-cassandra-datasource#readme"
 }

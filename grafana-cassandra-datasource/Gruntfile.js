@@ -2,7 +2,6 @@ module.exports = function(grunt) {
 
   require('load-grunt-tasks')(grunt);
 
-  grunt.loadNpmTasks('grunt-execute');
   grunt.loadNpmTasks('grunt-contrib-clean');
 
   grunt.initConfig({
@@ -34,8 +33,8 @@ module.exports = function(grunt) {
     babel: {
       options: {
         sourceMap: true,
-        presets:  ['env'],
-        plugins: ['transform-object-rest-spread']
+        presets:  ['@babel/preset-env'],
+        plugins: ['@babel/plugin-proposal-object-rest-spread']
       },
       dist: {
         files: [{
